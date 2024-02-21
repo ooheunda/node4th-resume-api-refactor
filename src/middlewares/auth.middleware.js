@@ -1,19 +1,21 @@
-import jwt from "jsonwebtoken";
+import { verifyAccessToken, verifyRefreshToken } from "../utils/jwtFunc.js";
 import { prisma } from "../utils/index.js";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { NotFoundError } from "../utils/common.error.js";
 
 export default async (req, res, next) => {
   try {
-    const { authorization } = req.cookies;
-    if (!authorization) throw new Error("로그인이 필요합니다.");
+    const { accessToken, refreshToken } = req.cookies;
+    if (!accessToken && !refreshToken) throw new Error("로그인이 필요합니다.");
 
-    const [tokenType, token] = authorization.split(" ");
+    const [tokenType, token] = accessToken
+      ? accessToken.split(" ")
+      : refreshToken.split(" ");
     if (tokenType !== "Bearer")
       throw new Error("토큰 타입이 일치하지 않습니다.");
 
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
+    const decodedToken = accessToken
+      ? verifyAccessToken(token)
+      : verifyRefreshToken(token);
     const userId = decodedToken.userId;
 
     const user = await prisma.users.findFirst({
@@ -21,15 +23,17 @@ export default async (req, res, next) => {
     });
 
     if (!user) {
-      res.clearCookie("authorization");
-      throw new Error("서버에 사용자가 존재하지 않습니다.");
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+      throw new NotFoundError("서버에 사용자가 존재하지 않습니다.");
     }
 
     req.user = user;
 
     next();
   } catch (err) {
-    res.clearCookie("authorization");
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
     switch (err.name) {
       case "TokenExpiredError":
         return res.status(401).json({ message: "토큰이 만료되었습니다." });
