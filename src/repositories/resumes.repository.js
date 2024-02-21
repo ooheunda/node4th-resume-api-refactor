@@ -5,6 +5,17 @@ export class ResumesRepository {
 
   findAllResumes = async (sort) => {
     const resumes = await this.prisma.resumes.findMany({
+      select: {
+        resumeId: true,
+        title: true,
+        user: {
+          select: {
+            name: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
       orderBy: {
         [sort]: "desc",
       },
@@ -16,6 +27,21 @@ export class ResumesRepository {
   findResumeById = async (resumeId) => {
     const resumeData = await this.prisma.resumes.findUnique({
       where: { resumeId: +resumeId },
+      select: {
+        resumeId: true,
+        title: true,
+        content: true,
+        user: {
+          select: {
+            userId: true,
+            email: true,
+            name: true,
+            age: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     return resumeData;

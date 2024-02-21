@@ -12,16 +12,7 @@ export class ResumesService {
 
     if (!resumes[0]) throw new NotFoundError("이력서 데이터가 없습니다.");
 
-    return resumes.map((resume) => {
-      return {
-        resumeId: resume.resumeId,
-        title: resume.title,
-        status: resume.status,
-        name: resume.user.name,
-        createdAt: resume.createdAt,
-        updatedAt: resume.updatedAt,
-      };
-    });
+    return resumes;
   };
 
   findResumeById = async (resumeId) => {
@@ -29,16 +20,7 @@ export class ResumesService {
     if (!resume)
       throw new NotFoundError("해당 id의 이력서가 존재하지 않습니다.");
 
-    return {
-      resumeId: resume.resumeId,
-      title: resume.title,
-      content: resume.content,
-      status: resume.status,
-      name: resume.user.name,
-      age: resume.user.age,
-      createdAt: resume.createdAt,
-      updatedAt: resume.updatedAt,
-    };
+    return resume;
   };
 
   createResume = async (userId, title, content) => {
@@ -56,7 +38,7 @@ export class ResumesService {
     if (!resume)
       throw new NotFoundError("해당 id의 이력서가 존재하지 않습니다.");
 
-    if (+userId !== resume.userId)
+    if (+userId !== resume.user.userId)
       throw new NotAuthorizedError("본인의 이력서만 수정할 수 있습니다.");
 
     const updatedTitle = title || resume.title;
@@ -76,8 +58,8 @@ export class ResumesService {
     if (!resume)
       throw new NotFoundError("해당 id의 이력서가 존재하지 않습니다.");
 
-    if (+userId !== resume.userId)
-      throw new NotAuthorizedError("본인의 이력서만 수정할 수 있습니다.");
+    if (+userId !== resume.user.userId)
+      throw new NotAuthorizedError("본인의 이력서만 삭제할 수 있습니다.");
 
     await this.resumesRepository.deleteResume(resumeId);
   };
