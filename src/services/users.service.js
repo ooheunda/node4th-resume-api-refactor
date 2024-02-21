@@ -54,6 +54,15 @@ export class UsersService {
     return { accessToken, refreshToken };
   };
 
+  deleteUser = async (userId, password) => {
+    const user = await this.usersRepository.findUserById(userId);
+
+    if (!(await bcrypt.compare(password, user.password)))
+      throw new NotAuthorizedError("비밀번호가 올바르지 않습니다.");
+
+    await this.usersRepository.deleteUser(userId);
+  };
+
   findUserInfoById = async (userId) => {
     const user = await this.usersRepository.findUserById(userId);
     if (!user) throw new NotFoundError("해당하는 유저가 존재하지 않습니다.");

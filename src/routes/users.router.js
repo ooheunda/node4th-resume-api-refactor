@@ -13,6 +13,8 @@ const usersController = new UsersController(usersService);
 
 router.post("/sign-up", usersController.userSignUp);
 router.post("/sign-in", usersController.userSignIn);
+router.post("/sign-out", authMiddleware, usersController.userSignOut);
+router.delete("/leave", authMiddleware, usersController.userLeave);
 router.get("/me", authMiddleware, usersController.findMyInfo);
 router.get("/:userId", usersController.findUserInfoById);
 

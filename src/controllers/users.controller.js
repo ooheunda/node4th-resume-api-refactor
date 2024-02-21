@@ -15,12 +15,10 @@ export class UsersController {
         age
       );
 
-      return res
-        .status(201)
-        .json({
-          message: `${user.name}님, 가입이 완료되었습니다.`,
-          data: user,
-        });
+      return res.status(201).json({
+        message: `${user.name}님, 가입이 완료되었습니다.`,
+        data: user,
+      });
     } catch (err) {
       next(err);
     }
@@ -36,6 +34,33 @@ export class UsersController {
       res.cookie("refreshToken", `Bearer ${tokens.refreshToken}`);
 
       return res.status(200).json({ message: "환영합니다!" });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  userSignOut = (req, res, next) => {
+    try {
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+
+      return res.status(200).json({ message: "로그아웃 되었습니다." });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  userLeave = async (req, res, next) => {
+    try {
+      const { userId } = req.user;
+      const { password } = req.body;
+
+      await this.usersService.deleteUser(userId, password);
+
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+
+      return res.status(200).json({ message: "회원 탈퇴 되었습니다." });
     } catch (err) {
       next(err);
     }

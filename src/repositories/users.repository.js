@@ -32,4 +32,10 @@ export class UsersRepository {
 
     return user;
   };
+
+  deleteUser = async (userId) => {
+    await this.prisma.users.delete({
+      where: { userId: +userId },
+    });
+  };
 }
