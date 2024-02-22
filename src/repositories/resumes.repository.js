@@ -8,6 +8,7 @@ export class ResumesRepository {
       select: {
         resumeId: true,
         title: true,
+        status: true,
         user: {
           select: {
             name: true,
@@ -31,6 +32,7 @@ export class ResumesRepository {
         resumeId: true,
         title: true,
         content: true,
+        status: true,
         user: {
           select: {
             userId: true,
